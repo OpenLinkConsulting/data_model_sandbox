@@ -1,0 +1,318 @@
+---
+- :key: "1"
+  :contents: "`# Choosing your architecture`"
+  :translated_contents: ""
+  :original_contents: "`# Choosing your architecture` "
+- :key: "2"
+  :contents:
+    Always On architectures reflect EDB’s Trusted Postgres architectures
+    that encapsulate practices and help you to achieve the highest possible service
+    availability in multiple configurations. These configurations range from single-location
+    architectures to complex distributed systems that protect from hardware failures
+    and data center failures. The architectures leverage EDB Postgres Distributed’s
+    multi-master capability and its ability to achieve 99.999% availability, even
+    during maintenance operations.
+  :translated_contents: ""
+  :original_contents:
+    "Always On architectures reflect EDB’s Trusted Postgres architectures
+    that encapsulate practices and help you to achieve the highest possible service
+    availability in multiple configurations. These configurations range from single-location
+    architectures to complex distributed systems that protect from hardware failures
+    and data center failures. The architectures leverage EDB Postgres Distributed’s
+    multi-master capability and its ability to achieve 99.999% availability, even
+    during maintenance operations. "
+- :key: "3"
+  :contents:
+    You can use EDB Postgres Distributed for architectures beyond the examples
+    described here. Use-case-specific variations have been successfully deployed in
+    production. However, these variations must undergo rigorous architecture review
+    first. Also, EDB’s standard deployment tool for Always On architectures, TPA,
+    must be enabled to support the variations before they can be supported in production
+    environments.
+  :translated_contents: ""
+  :original_contents:
+    "You can use EDB Postgres Distributed for architectures beyond
+    the examples described here. Use-case-specific variations have been successfully
+    deployed in production. However, these variations must undergo rigorous architecture
+    review first. Also, EDB’s standard deployment tool for Always On architectures,
+    TPA, must be enabled to support the variations before they can be supported in
+    production environments. "
+- :key: "4"
+  :contents: "## Standard EDB Always On architectures"
+  :translated_contents: ""
+  :original_contents: "## Standard EDB Always On architectures "
+- :key: "5"
+  :contents:
+    EDB has identified a set of standardized architectures to support single
+    or multi-location deployments with varying levels of redundancy depending on your
+    RPO and RTO requirements.
+  :translated_contents: ""
+  :original_contents:
+    "EDB has identified a set of standardized architectures to support
+    single or multi-location deployments with varying levels of redundancy depending
+    on your RPO and RTO requirements. "
+- :key: "6"
+  :contents:
+    The Always ON architecture uses 3 database node group as a basic building
+    block (it's possible to use 5 node group for extra redundancy as well).
+  :translated_contents: ""
+  :original_contents:
+    "The Always ON architecture uses 3 database node group as a
+    basic building block (it's possible to use 5 node group for extra redundancy
+    as well). "
+- :key: "7"
+  :contents: "EDB Postgres Distributed consists of the following major building blocks:"
+  :translated_contents: ""
+  :original_contents:
+    "EDB Postgres Distributed consists of the following major building
+    blocks: "
+- :key: "8"
+  :contents:
+    "-  Bi-Directional Replication (BDR) - a Postgres extension that creates
+    the multi-master mesh network "
+  :translated_contents: ""
+  :original_contents:
+    "- Bi-Directional Replication (BDR) - a Postgres extension that
+    creates the multi-master mesh network "
+- :key: "9"
+  :contents:
+    "-  PGD-proxy - a connection router that makes sure the application is
+    connected to the right data nodes. "
+  :translated_contents: ""
+  :original_contents:
+    "- PGD-proxy - a connection router that makes sure the application
+    is connected to the right data nodes. "
+- :key: "10"
+  :contents:
+    All Always On architectures protect an increasing range of failure situations.
+    For example, a single active location with 2 data nodes protects against local
+    hardware failure, but does not provide protection from location failure (data
+    center or availability zone) failure. Extending that architecture with a backup
+    at a different location, ensures some protection in case of the catastrophic loss
+    of a location, but the database still has to be restored from backup first which
+    may violate recovery time objective (RTO) requirements. By adding a second active
+    location connected in a multi-master mesh network, ensuring that service remains
+    available even in case a location goes offline. Finally adding 3rd location (this
+    can be a witness only location) allows global Raft functionality to work even
+    in case of one location going offline. The global Raft is primarily needed to
+    run administrative commands and also some features like DDL or sequence allocation
+    may not work without it, while DML replication will continue to work even in the
+    absence of global Raft.
+  :translated_contents: ""
+  :original_contents:
+    "All Always On architectures protect an increasing range of
+    failure situations. For example, a single active location with 2 data nodes protects
+    against local hardware failure, but does not provide protection from location
+    failure (data center or availability zone) failure. Extending that architecture
+    with a backup at a different location, ensures some protection in case of the
+    catastrophic loss of a location, but the database still has to be restored from
+    backup first which may violate recovery time objective (RTO) requirements. By
+    adding a second active location connected in a multi-master mesh network, ensuring
+    that service remains available even in case a location goes offline. Finally adding
+    3rd location (this can be a witness only location) allows global Raft functionality
+    to work even in case of one location going offline. The global Raft is primarily
+    needed to run administrative commands and also some features like DDL or sequence
+    allocation may not work without it, while DML replication will continue to work
+    even in the absence of global Raft. "
+- :key: "11"
+  :contents: Each architecture can provide zero recovery point objective (RPO), as data can be streamed synchronously to at least one local master, thus guaranteeing zero data loss in case of local hardware failure.
+  :translated_contents: ""
+  :original_contents: "Each architecture can provide zero recovery point objective (RPO), as data can be streamed synchronously to at least one local master, thus guaranteeing zero data loss in case of local hardware failure. "
+- :key: "12"
+  :contents:
+    Increasing the availability guarantee always drives additional cost for
+    hardware and licenses, networking requirements, and operational complexity. Thus
+    it is important to carefully consider the availability and compliance requirements
+    before choosing an architecture.
+  :translated_contents: ""
+  :original_contents:
+    "Increasing the availability guarantee always drives additional
+    cost for hardware and licenses, networking requirements, and operational complexity.
+    Thus it is important to carefully consider the availability and compliance requirements
+    before choosing an architecture. "
+- :key: "13"
+  :contents: "## Architecture details"
+  :translated_contents: ""
+  :original_contents: "## Architecture details "
+- :key: "14"
+  :contents:
+    By default, application transactions do not require cluster-wide consensus
+    for DML (selects, inserts, updates, and deletes) allowing for lower latency and
+    better performance. However, for certain operations such as generating new global
+    sequences or performing distributed DDL, EDB Postgres Distributed requires an
+    odd number of nodes to make decisions using a Raft (<https://raft.github.io>)
+    based consensus model. Thus, even the simpler architectures always have three
+    nodes, even if not all of them are storing data.
+  :translated_contents: ""
+  :original_contents:
+    "By default, application transactions do not require cluster-wide
+    consensus for DML (selects, inserts, updates, and deletes) allowing for lower
+    latency and better performance. However, for certain operations such as generating
+    new global sequences or performing distributed DDL, EDB Postgres Distributed requires
+    an odd number of nodes to make decisions using a Raft (<https://raft.github.io>)
+    based consensus model. Thus, even the simpler architectures always have three
+    nodes, even if not all of them are storing data. "
+- :key: "15"
+  :contents:
+    Applications connect to the standard Always On architectures via multi-host
+    connection strings, where each PGD-Proxy server is a distinct entry in the multi-host
+    connection string. There should always be at least two proxy nodes in each location
+    to ensure high availability. The proxy can be co-located with the database instance,
+    in which case it's recommended to put the proxy on every data node.
+  :translated_contents: ""
+  :original_contents:
+    "Applications connect to the standard Always On architectures
+    via multi-host connection strings, where each PGD-Proxy server is a distinct entry
+    in the multi-host connection string. There should always be at least two proxy
+    nodes in each location to ensure high availability. The proxy can be co-located
+    with the database instance, in which case it's recommended to put the proxy on
+    every data node. "
+- :key: "16"
+  :contents:
+    Other connection mechanisms have been successfully deployed in production,
+    but they are not part of the standard Always On architectures.
+  :translated_contents: ""
+  :original_contents:
+    "Other connection mechanisms have been successfully deployed
+    in production, but they are not part of the standard Always On architectures. "
+- :key: "17"
+  :contents: "### Always On Single Location"
+  :translated_contents: ""
+  :original_contents: "### Always On Single Location "
+- :key: "18"
+  :contents: "![Always On 1 Location, 3 Nodes Diagram](images/always-on-1x3-updated.png)"
+  :translated_contents: ""
+  :original_contents: "![Always On 1 Location, 3 Nodes Diagram](images/always-on-1x3-updated.png) "
+- :key: "19"
+  :contents:
+    "*  Additional replication between data nodes 1 and 3 is not shown but
+    occurs as part of the replication mesh "
+  :translated_contents: ""
+  :original_contents:
+    "* Additional replication between data nodes 1 and 3 is not
+    shown but occurs as part of the replication mesh "
+- :key: "20"
+  :contents:
+    "*  Redundant hardware to quickly restore from local failures * 3 PGD
+    nodes * could be 3 data nodes (recommended)  * could be 2 data nodes and 1 witness
+    which does not hold data (not depicted) * A PGD-Proxy for  each data node with
+    affinity to the applications * can be co-located with data node "
+  :translated_contents: ""
+  :original_contents:
+    "* Redundant hardware to quickly restore from local failures
+    * 3 PGD nodes * could be 3 data nodes (recommended)  * could be 2 data nodes and
+    1 witness which does not hold data (not depicted) * A PGD-Proxy for  each data
+    node with affinity to the applications * can be co-located with data node "
+- :key: "21"
+  :contents:
+    "*  Barman for backup and recovery (not depicted) * Offsite is optional,
+    but recommended * Can be shared by multiple clusters "
+  :translated_contents: ""
+  :original_contents:
+    "* Barman for backup and recovery (not depicted) * Offsite is
+    optional, but recommended * Can be shared by multiple clusters "
+- :key: "22"
+  :contents:
+    "*  Postgres Enterprise Manager (PEM)  for monitoring (not depicted)
+    * Can be shared by multiple clusters "
+  :translated_contents: ""
+  :original_contents:
+    "* Postgres Enterprise Manager (PEM)  for monitoring (not depicted)
+    * Can be shared by multiple clusters "
+- :key: "23"
+  :contents: "### Always On Multi-Location"
+  :translated_contents: ""
+  :original_contents: "### Always On Multi-Location "
+- :key: "24"
+  :contents: "![Always On 2 Locations, 3 Nodes Per Location, Active/Active Diagram](images/always-on-2x3-aa-updated.png)"
+  :translated_contents: ""
+  :original_contents:
+    "![Always On 2 Locations, 3 Nodes Per Location, Active/Active
+    Diagram](images/always-on-2x3-aa-updated.png) "
+- :key: "25"
+  :contents:
+    "*  Application can be Active/Active in each location, or Active/Passive
+    or Active DR with only one location taking writes "
+  :translated_contents: ""
+  :original_contents:
+    "* Application can be Active/Active in each location, or Active/Passive
+    or Active DR with only one location taking writes "
+- :key: "26"
+  :contents:
+    "*  Additional replication between data nodes 1 and 3 is not shown but
+    occurs as part of the replication mesh "
+  :translated_contents: ""
+  :original_contents:
+    "* Additional replication between data nodes 1 and 3 is not
+    shown but occurs as part of the replication mesh "
+- :key: "27"
+  :contents:
+    "*  Redundant hardware to quickly restore from local failures * 6 PGD
+    nodes total, 3 in each location * could be 3 data nodes (recommended) * could
+    be 2 data nodes and 1 witness which does not hold data (not depicted) * A PGD-Proxy
+    for  each data node with affinity to the applications * can be co-located with
+    data node "
+  :translated_contents: ""
+  :original_contents:
+    "* Redundant hardware to quickly restore from local failures
+    * 6 PGD nodes total, 3 in each location * could be 3 data nodes (recommended)
+    * could be 2 data nodes and 1 witness which does not hold data (not depicted)
+    * A PGD-Proxy for  each data node with affinity to the applications * can be co-located
+    with data node "
+- :key: "28"
+  :contents:
+    "*  Barman  for backup and recovery (not depicted) * Can be shared by
+    multiple clusters "
+  :translated_contents: ""
+  :original_contents:
+    "* Barman  for backup and recovery (not depicted) * Can be shared
+    by multiple clusters "
+- :key: "29"
+  :contents:
+    "*  Postgres Enterprise Manager (PEM)  for monitoring (not depicted)
+    * Can be shared by multiple clusters "
+  :translated_contents: ""
+  :original_contents:
+    "* Postgres Enterprise Manager (PEM)  for monitoring (not depicted)
+    * Can be shared by multiple clusters "
+- :key: "30"
+  :contents:
+    "*  An optional witness node should be placed in a third region to increase
+    tolerance for location failure * Otherwise, when a location fails, actions requiring
+    global consensus will be blocked such as adding new nodes, distributed DDL, etc. "
+  :translated_contents: ""
+  :original_contents:
+    "* An optional witness node should be placed in a third region
+    to increase tolerance for location failure * Otherwise, when a location fails,
+    actions requiring global consensus will be blocked such as adding new nodes, distributed
+    DDL, etc. "
+- :key: "31"
+  :contents: "## Choosing your architecture"
+  :translated_contents: ""
+  :original_contents: "## Choosing your architecture "
+- :key: "32"
+  :contents: "All architectures provide the following:"
+  :translated_contents: ""
+  :original_contents: "All architectures provide the following: "
+- :key: "33"
+  :contents: "*  Hardware failure protection "
+  :translated_contents: ""
+  :original_contents: "* Hardware failure protection "
+- :key: "34"
+  :contents: "*  Zero downtime upgrades "
+  :translated_contents: ""
+  :original_contents: "* Zero downtime upgrades "
+- :key: "35"
+  :contents: "*  Support for availability zones in public/private cloud "
+  :translated_contents: ""
+  :original_contents: "* Support for availability zones in public/private cloud "
+- :key: "36"
+  :contents: Use these criteria to help you to select the appropriate Always On architecture.
+  :translated_contents: ""
+  :original_contents:
+    "Use these criteria to help you to select the appropriate Always
+    On architecture. "
+- :key: "37"
+  :contents: edb_tabl_notran_1
+  :translated_contents: ""
+  :original_contents: " edb_tabl_notran_1  "

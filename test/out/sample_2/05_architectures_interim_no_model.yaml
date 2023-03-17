@@ -1,0 +1,286 @@
+---
+- :key: '1'
+  :contents: edb_tran_1
+  :translated_contents: "`# Choosing your architecture`"
+  :original_contents: "`# Choosing your architecture` "
+- :key: '2'
+  :contents: Always On architectures reflect EDB’s Trusted Postgres architectures
+    that encapsulate practices and help you to achieve the highest possible service
+    availability in multiple configurations. These configurations range from single-location
+    architectures to complex distributed systems that protect from hardware failures
+    and data center failures. The architectures leverage EDB Postgres Distributed’s
+    multi-master capability and its ability to achieve 99.999% availability, even
+    during maintenance operations.
+  :translated_contents: Always Onアーキテクチャは、プラクティスをカプセル化し、マルチプルの構成で可能な限り最高のサービス可用性を達成するのに役立つEDBのTrusted
+    Postgresアーキテクチャを反映しています。これらの構成は、単一ロケーションのアーキテクチャから、ハードウェアの障害やデータセンターの障害から保護する複雑な分散システムにまで及びます。このアーキテクチャは、
+    EDB Postgres Distributedのマルチマスター機能と、メンテナンス操作中でも99.999％の可用性を実現する機能を活用しています。
+  :original_contents: 'Always On architectures reflect EDB’s Trusted Postgres architectures
+    that encapsulate practices and help you to achieve the highest possible service
+    availability in multiple configurations. These configurations range from single-location
+    architectures to complex distributed systems that protect from hardware failures
+    and data center failures. The architectures leverage EDB Postgres Distributed’s
+    multi-master capability and its ability to achieve 99.999% availability, even
+    during maintenance operations. '
+- :key: '3'
+  :contents: You can use EDB Postgres Distributed for architectures beyond the examples
+    described here. Use-case-specific variations have been successfully deployed in
+    production. However, these variations must undergo rigorous architecture review
+    first. Also, EDB’s standard deployment tool for Always On architectures, TPA,
+    must be enabled to support the variations before they can be supported in production
+    environments.
+  :translated_contents: ここで説明されている例以外のアーキテクチャにもEDB Postgres Distributedを使用できます。ユースケース固有のバリエーションが本番環境に正常にデプロイされました。ただし、これらのバリエーションは、最初に厳密なアーキテクチャレビューを受ける必要があります。また、
+    Always Onアーキテクチャ用のEDBの標準展開ツールであるTPAを有効にして、バリエーションを実稼働環境でサポートする必要があります。
+  :original_contents: 'You can use EDB Postgres Distributed for architectures beyond
+    the examples described here. Use-case-specific variations have been successfully
+    deployed in production. However, these variations must undergo rigorous architecture
+    review first. Also, EDB’s standard deployment tool for Always On architectures,
+    TPA, must be enabled to support the variations before they can be supported in
+    production environments. '
+- :key: '4'
+  :contents: "## Standard EDB Always On architectures"
+  :translated_contents: "## 標準のEDB Always Onアーキテクチャ"
+  :original_contents: "## Standard EDB Always On architectures "
+- :key: '5'
+  :contents: EDB has identified a set of standardized architectures to support single
+    or multi-location deployments with varying levels of redundancy depending on your
+    RPO and RTO requirements.
+  :translated_contents: EDBは、RPOとRTOの要件に応じてさまざまなレベルの冗長性を備えた単一またはマルチロケーションの展開をサポートするための標準化されたアーキテクチャのセットを特定しました。
+  :original_contents: 'EDB has identified a set of standardized architectures to support
+    single or multi-location deployments with varying levels of redundancy depending
+    on your RPO and RTO requirements. '
+- :key: '6'
+  :contents: The Always ON architecture uses 3 database node group as a basic building
+    block (it's possible to use 5 node group for extra redundancy as well).
+  :translated_contents: Always ONアーキテクチャは、3つのデータベースノードグループを基本的なビルディングブロックとして使用します（追加の冗長性のために5つのノードグループを使用することもできます）。
+  :original_contents: 'The Always ON architecture uses 3 database node group as a
+    basic building block (it''s possible to use 5 node group for extra redundancy
+    as well). '
+- :key: '7'
+  :contents: 'EDB Postgres Distributed consists of the following major building blocks:'
+  :translated_contents: EDB Postgres Distributedは、次の主要なビルディングブロックで構成されています。
+  :original_contents: 'EDB Postgres Distributed consists of the following major building
+    blocks: '
+- :key: '8'
+  :contents: "-  Bi-Directional Replication (BDR) - a Postgres extension that creates
+    the multi-master mesh network "
+  :translated_contents: "- Bi-Directional Replication（BDR）-マルチマスターメッシュネットワークを作成するPostgres拡張機能 "
+  :original_contents: "- Bi-Directional Replication (BDR) - a Postgres extension that
+    creates the multi-master mesh network "
+- :key: '9'
+  :contents: "-  PGD-proxy - a connection router that makes sure the application is
+    connected to the right data nodes. "
+  :translated_contents: "- PGDプロキシ-アプリケーションが正しいデータノードに接続されていることを確認する接続ルーター。"
+  :original_contents: "- PGD-proxy - a connection router that makes sure the application
+    is connected to the right data nodes. "
+- :key: '10'
+  :contents: All Always On architectures protect an increasing range of failure situations.
+    For example, a single active location with 2 data nodes protects against local
+    hardware failure, but does not provide protection from location failure (data
+    center or availability zone) failure. Extending that architecture with a backup
+    at a different location, ensures some protection in case of the catastrophic loss
+    of a location, but the database still has to be restored from backup first which
+    may violate recovery time objective (RTO) requirements. By adding a second active
+    location connected in a multi-master mesh network, ensuring that service remains
+    available even in case a location goes offline. Finally adding 3rd location (this
+    can be a witness only location) allows global Raft functionality to work even
+    in case of one location going offline. The global Raft is primarily needed to
+    run administrative commands and also some features like DDL or sequence allocation
+    may not work without it, while DML replication will continue to work even in the
+    absence of global Raft.
+  :translated_contents: すべてのAlways Onアーキテクチャは、ますます多くの障害状況を保護します。たとえば、2つのデータノードを持つ単一のアクティブなロケーションはローカルのハードウェア障害から保護しますが、ロケーションの障害（データセンターまたはアベイラビリティーゾーン）の障害からの保護は提供しません。別の場所にあるバックアップでそのアーキテクチャを拡張すると、場所の壊滅的な損失が発生した場合に何らかの保護が保証されますが、データベースを最初にバックアップから復元する必要があり、目標復旧時間（RTO）要件に違反する可能性があります。マルチマスターメッシュネットワークに接続された2番目のアクティブなロケーションを追加することにより、ロケーションがオフラインになった場合でもサービスを利用できるようにします。最後に3番目の場所（これはwitnessのみの場所にすることができます）を追加すると、1つの場所がオフラインになった場合でもグローバルなRaft機能が機能します。グローバルRaftは主に管理コマンドを実行するために必要です。また、
+    DDLやシーケンス割り当てなどの一部の機能はそれなしでは機能しない場合がありますが、DMLレプリケーションはグローバルRaftがなくても機能し続けます。
+  :original_contents: 'All Always On architectures protect an increasing range of
+    failure situations. For example, a single active location with 2 data nodes protects
+    against local hardware failure, but does not provide protection from location
+    failure (data center or availability zone) failure. Extending that architecture
+    with a backup at a different location, ensures some protection in case of the
+    catastrophic loss of a location, but the database still has to be restored from
+    backup first which may violate recovery time objective (RTO) requirements. By
+    adding a second active location connected in a multi-master mesh network, ensuring
+    that service remains available even in case a location goes offline. Finally adding
+    3rd location (this can be a witness only location) allows global Raft functionality
+    to work even in case of one location going offline. The global Raft is primarily
+    needed to run administrative commands and also some features like DDL or sequence
+    allocation may not work without it, while DML replication will continue to work
+    even in the absence of global Raft. '
+- :key: '11'
+  :contents: Each architecture can provide zero recovery point objective (RPO), as
+    data can be streamed synchronously to at least one local master, thus guaranteeing
+    zero data loss in case of local hardware failure.
+  :translated_contents: 各アーキテクチャは、データを少なくとも1つのローカルマスターに同期してストリーミングできるため、目標復旧時点（RPO）を提供できません。したがって、ローカルハードウェアに障害が発生した場合のデータ損失はゼロです。
+  :original_contents: 'Each architecture can provide zero recovery point objective
+    (RPO), as data can be streamed synchronously to at least one local master, thus
+    guaranteeing zero data loss in case of local hardware failure. '
+- :key: '12'
+  :contents: Increasing the availability guarantee always drives additional cost for
+    hardware and licenses, networking requirements, and operational complexity. Thus
+    it is important to carefully consider the availability and compliance requirements
+    before choosing an architecture.
+  :translated_contents: 可用性の保証を高めると、常にハードウェアとライセンス、ネットワーク要件、および運用の複雑さが増加します。したがって、アーキテクチャを選択する前に、可用性とコンプライアンスの要件を注意深く検討することが重要です。
+  :original_contents: 'Increasing the availability guarantee always drives additional
+    cost for hardware and licenses, networking requirements, and operational complexity.
+    Thus it is important to carefully consider the availability and compliance requirements
+    before choosing an architecture. '
+- :key: '13'
+  :contents: "## Architecture details"
+  :translated_contents: "## アーキテクチャの詳細"
+  :original_contents: "## Architecture details "
+- :key: '14'
+  :contents: By default, application transactions do not require cluster-wide consensus
+    for DML (selects, inserts, updates, and deletes) allowing for lower latency and
+    better performance. However, for certain operations such as generating new global
+    sequences or performing distributed DDL, EDB Postgres Distributed requires an
+    odd number of nodes to make decisions using a Raft (<https://raft.github.io>)
+    based consensus model. Thus, even the simpler architectures always have three
+    nodes, even if not all of them are storing data.
+  :translated_contents: デフォルトでは、アプリケーショントランザクションはDML（選択、挿入、更新、および削除）のクラスター全体のコンセンサスを必要としないため、レイテンシーが低下し、パフォーマンスが向上します。ただし、新しいグローバルシーケンスの生成や分散DDLの実行などの特定のオペレーションでは、
+    EDB Postgres DistributedはRaft（< <a href="https://raft.github.io">https:// raft.github.io</a>
+    >）ベースのコンセンサスモデルを使用して決定を行うために奇数のノードを必要とします。したがって、より単純なアーキテクチャでも、すべてがデータを保存しているわけではない場合でも、常に3つのノードがあります。
+  :original_contents: 'By default, application transactions do not require cluster-wide
+    consensus for DML (selects, inserts, updates, and deletes) allowing for lower
+    latency and better performance. However, for certain operations such as generating
+    new global sequences or performing distributed DDL, EDB Postgres Distributed requires
+    an odd number of nodes to make decisions using a Raft (<https://raft.github.io>)
+    based consensus model. Thus, even the simpler architectures always have three
+    nodes, even if not all of them are storing data. '
+- :key: '15'
+  :contents: Applications connect to the standard Always On architectures via multi-host
+    connection strings, where each PGD-Proxy server is a distinct entry in the multi-host
+    connection string. There should always be at least two proxy nodes in each location
+    to ensure high availability. The proxy can be co-located with the database instance,
+    in which case it's recommended to put the proxy on every data node.
+  :translated_contents: アプリケーションは、マルチホスト接続文字列を介して標準のAlways Onアーキテクチャに接続します。ここで、各PGDプロキシサーバーはマルチホスト接続文字列内の個別のエントリです。高可用性を確保するには、各場所に常に少なくとも2つのプロキシノードが必要です。プロキシはデータベースインスタンスと同じ場所に配置できます。その場合、すべてのデータノードにプロキシを配置することをお勧めします。
+  :original_contents: 'Applications connect to the standard Always On architectures
+    via multi-host connection strings, where each PGD-Proxy server is a distinct entry
+    in the multi-host connection string. There should always be at least two proxy
+    nodes in each location to ensure high availability. The proxy can be co-located
+    with the database instance, in which case it''s recommended to put the proxy on
+    every data node. '
+- :key: '16'
+  :contents: Other connection mechanisms have been successfully deployed in production,
+    but they are not part of the standard Always On architectures.
+  :translated_contents: 他の接続メカニズムは運用環境に正常にデプロイされていますが、標準のAlways Onアーキテクチャの一部ではありません。
+  :original_contents: 'Other connection mechanisms have been successfully deployed
+    in production, but they are not part of the standard Always On architectures. '
+- :key: '17'
+  :contents: "### Always On Single Location"
+  :translated_contents: "### Always On 1つの場所"
+  :original_contents: "### Always On Single Location "
+- :key: '18'
+  :contents: "!edb_tran_1"
+  :translated_contents: "![Always On 1 Location, 3 Nodes Diagram](images/always-on-1x3-updated.png)"
+  :original_contents: "![Always On 1 Location, 3 Nodes Diagram](images/always-on-1x3-updated.png) "
+- :key: '19'
+  :contents: "*  Additional replication between data nodes 1 and 3 is not shown but
+    occurs as part of the replication mesh "
+  :translated_contents: "*データノード1と3間の追加のレプリケーションは表示されませんが、レプリケーションメッシュの一部として発生します"
+  :original_contents: "* Additional replication between data nodes 1 and 3 is not
+    shown but occurs as part of the replication mesh "
+- :key: '20'
+  :contents: "*  Redundant hardware to quickly restore from local failures * 3 PGD
+    nodes * could be 3 data nodes (recommended)  * could be 2 data nodes and 1 witness
+    which does not hold data (not depicted) * A PGD-Proxy for  each data node with
+    affinity to the applications * can be co-located with data node "
+  :translated_contents: "* ローカル障害からすばやく復元するための冗長ハードウェア * 3つのPGDノード * 3つのデータノードである可能性があります（推奨）
+    * 2つのデータノードとデータを保持しない1つのウィットネスアプリケーションへのアフィニティ *データノードと同じ場所に配置できます"
+  :original_contents: "* Redundant hardware to quickly restore from local failures
+    * 3 PGD nodes * could be 3 data nodes (recommended)  * could be 2 data nodes and
+    1 witness which does not hold data (not depicted) * A PGD-Proxy for  each data
+    node with affinity to the applications * can be co-located with data node "
+- :key: '21'
+  :contents: "*  Barman for backup and recovery (not depicted) * Offsite is optional,
+    but recommended * Can be shared by multiple clusters "
+  :translated_contents: "* バックアップとリカバリのBarman（図示せず） * オフサイトはオプションですが、推奨 * 複数のクラスターで共有できます "
+  :original_contents: "* Barman for backup and recovery (not depicted) * Offsite is
+    optional, but recommended * Can be shared by multiple clusters "
+- :key: '22'
+  :contents: "*  Postgres Enterprise Manager (PEM)  for monitoring (not depicted)
+    * Can be shared by multiple clusters "
+  :translated_contents: "*監視用のPostgres Enterprise Manager（PEM）（図示せず） *複数のクラスターで共有可能"
+  :original_contents: "* Postgres Enterprise Manager (PEM)  for monitoring (not depicted)
+    * Can be shared by multiple clusters "
+- :key: '23'
+  :contents: "### Always On Multi-Location"
+  :translated_contents: "### Always Onマルチロケーション"
+  :original_contents: "### Always On Multi-Location "
+- :key: '24'
+  :contents: "!edb_tran_1"
+  :translated_contents: "![Always On 2 Locations, 3 Nodes Per Location, Active/Active
+    Diagram](images/always-on-2x3-aa-updated.png)"
+  :original_contents: "![Always On 2 Locations, 3 Nodes Per Location, Active/Active
+    Diagram](images/always-on-2x3-aa-updated.png) "
+- :key: '25'
+  :contents: "*  Application can be Active/Active in each location, or Active/Passive
+    or Active DR with only one location taking writes "
+  :translated_contents: "*アプリケーションは各場所でアクティブ/アクティブ、または1つの場所のみが書き込みを行うアクティブ/パッシブまたはアクティブDR"
+  :original_contents: "* Application can be Active/Active in each location, or Active/Passive
+    or Active DR with only one location taking writes "
+- :key: '26'
+  :contents: "*  Additional replication between data nodes 1 and 3 is not shown but
+    occurs as part of the replication mesh "
+  :translated_contents: "*データノード1と3間の追加のレプリケーションは表示されませんが、レプリケーションメッシュの一部として発生します"
+  :original_contents: "* Additional replication between data nodes 1 and 3 is not
+    shown but occurs as part of the replication mesh "
+- :key: '27'
+  :contents: "*  Redundant hardware to quickly restore from local failures * 6 PGD
+    nodes total, 3 in each location * could be 3 data nodes (recommended) * could
+    be 2 data nodes and 1 witness which does not hold data (not depicted) * A PGD-Proxy
+    for  each data node with affinity to the applications * can be co-located with
+    data node "
+  :translated_contents: "* ローカル障害からすばやく復元するための冗長ハードウェア * 合計6つのPGDノード、各場所に3つ * 3つのデータノードである可能性があります（推奨）
+    * 2つのデータノードとデータを保持しない1つのウィットネスアプリケーションへのアフィニティを持つ各データノードのプロキシ *データノードと同じ場所に配置できます"
+  :original_contents: "* Redundant hardware to quickly restore from local failures
+    * 6 PGD nodes total, 3 in each location * could be 3 data nodes (recommended)
+    * could be 2 data nodes and 1 witness which does not hold data (not depicted)
+    * A PGD-Proxy for  each data node with affinity to the applications * can be co-located
+    with data node "
+- :key: '28'
+  :contents: "*  Barman  for backup and recovery (not depicted) * Can be shared by
+    multiple clusters "
+  :translated_contents: "*バックアップとリカバリのBarman （図示せず） *複数のクラスターで共有できます "
+  :original_contents: "* Barman  for backup and recovery (not depicted) * Can be shared
+    by multiple clusters "
+- :key: '29'
+  :contents: "*  Postgres Enterprise Manager (PEM)  for monitoring (not depicted)
+    * Can be shared by multiple clusters "
+  :translated_contents: "*監視用のPostgres Enterprise Manager（PEM）（図示せず） *複数のクラスターで共有可能"
+  :original_contents: "* Postgres Enterprise Manager (PEM)  for monitoring (not depicted)
+    * Can be shared by multiple clusters "
+- :key: '30'
+  :contents: "*  An optional witness node should be placed in a third region to increase
+    tolerance for location failure * Otherwise, when a location fails, actions requiring
+    global consensus will be blocked such as adding new nodes, distributed DDL, etc. "
+  :translated_contents: "*オプションの監視ノードを3番目のリージョンに配置して、ロケーションの障害に対するDDLを高める必要があります。 "
+  :original_contents: "* An optional witness node should be placed in a third region
+    to increase tolerance for location failure * Otherwise, when a location fails,
+    actions requiring global consensus will be blocked such as adding new nodes, distributed
+    DDL, etc. "
+- :key: '31'
+  :contents: "## Choosing your architecture"
+  :translated_contents: "## アーキテクチャの選択"
+  :original_contents: "## Choosing your architecture "
+- :key: '32'
+  :contents: 'All architectures provide the following:'
+  :translated_contents: すべてのアーキテクチャは以下を提供します。
+  :original_contents: 'All architectures provide the following: '
+- :key: '33'
+  :contents: "*  Hardware failure protection "
+  :translated_contents: "* ハードウェア障害保護"
+  :original_contents: "* Hardware failure protection "
+- :key: '34'
+  :contents: "*  Zero downtime upgrades "
+  :translated_contents: "*ゼロダウンタイムのアップグレード"
+  :original_contents: "* Zero downtime upgrades "
+- :key: '35'
+  :contents: "*  Support for availability zones in public/private cloud "
+  :translated_contents: "* パブリック/プライベートクラウドでのアベイラビリティーゾーンのサポート"
+  :original_contents: "* Support for availability zones in public/private cloud "
+- :key: '36'
+  :contents: Use these criteria to help you to select the appropriate Always On architecture.
+  :translated_contents: これらの基準を使用して、適切なAlways Onアーキテクチャを選択します。
+  :original_contents: 'Use these criteria to help you to select the appropriate Always
+    On architecture. '
+- :key: '37'
+  :contents: edb_tabl_notran_1
+  :translated_contents: edb_tabl_notran_1
+  :original_contents: " edb_tabl_notran_1  "
