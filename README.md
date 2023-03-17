@@ -1,14 +1,34 @@
-# This is the part of tranlation program
-
-## Google autoML Translate Multi language Translation (ja/zh-TW/ko)
+# Please rung proc_5b_XXXXX with model and w/o model
+# result file will be output to /out/sample_2 directory as Yaml file
 
 ### How to run
-
 1. First google credidential
+
+2. ruby 
+
+   2-1. for with model translation
+
+   ```
+   ruby proc_5b_no_model
+   ```
+   This will out put XXXX_interim.yml
+
+   2-2. for with model translation
+
+   ```
+   ruby proc_5b_step3_api_20210124.rb
+   ```
+   This iwll output xxxx_interim_no_model.yml
+
+Key 11 in thw yml file translation 
+
+
+
+<!-- 1. First google credidential
 2. ruby  proc_5a_table_translation_step3_translation_api_20210124.rb
    1. This is the translation of table
 3. ruby proc_5b_step3_translation_api_20210124.rb
-   1. This is the translation of main contents in the doc
+   1. This is the translation of main contents in the doc -->
 
 ### Input and Output
 
